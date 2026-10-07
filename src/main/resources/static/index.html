@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Jhonny Java Compiler</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: #080808;
+    color: white;
+    font-family: Arial, sans-serif;
+    height: 100vh;
+    overflow: hidden;
+}
+
+header {
+    height: 64px;
+    background: #101010;
+    border-bottom: 1px solid #242424;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 22px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 19px;
+    font-weight: bold;
+}
+
+.logo span {
+    color: #00e676;
+}
+
+.cup {
+    width: 35px;
+    height: 35px;
+    background: #00e676;
+    color: #000;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.status {
+    color: #999;
+    font-size: 13px;
+}
+
+.status::before {
+    content: "";
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: #00e676;
+    border-radius: 50%;
+    margin-right: 7px;
+}
+
+.container {
+    height: calc(100vh - 64px);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: #252525;
+}
+
+.panel {
+    background: #0d0d0d;
+    min-width: 0;
+}
+
+.panel-header {
+    height: 55px;
+    background: #111;
+    border-bottom: 1px solid #252525;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 15px;
+}
+
+.title {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.java-dot {
+    width: 10px;
+    height: 10px;
+    background: #e76f00;
+    border-radius: 50%;
+}
+
+.buttons {
+    display: flex;
+    gap: 8px;
+}
+
+button {
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.clear {
+    background: #222;
+    color: #aaa;
+    padding: 8px 13px;
+    border-radius: 6px;
+}
+
+.clear:hover {
+    background: #333;
+    color: white;
+}
+
+.run {
+    background: #00e676;
+    color: #000;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-weight: bold;
+}
+
+.run:hover {
+    background: #00c965;
+}
+
+.run:disabled {
+    opacity: .5;
+    cursor: wait;
+}
+
+.editor {
+    height: calc(100% - 55px);
+    display: flex;
+    overflow: hidden;
+}
+
+.lines {
+    width: 52px;
+    background: #090909;
+    color: #444;
+    padding-top: 15px;
+    padding-right: 12px;
+    text-align: right;
+    font: 14px/1.65 monospace;
+    user-select: none;
+}
+
+textarea {
+    flex: 1;
+    resize: none;
+    outline: none;
+    border: none;
+    background: #0d0d0d;
+    color: #eee;
+    padding: 14px 17px;
+    font: 14px/1.65 monospace;
+    tab-size: 4;
+    white-space: pre;
+}
+
+.output {
+    height: calc(100% - 55px);
+    display: flex;
+    flex-direction: column;
+}
+
+.console {
+    flex: 1;
+    padding: 20px;
+    overflow: auto;
+    color: #ddd;
+    font: 14px/1.7 monospace;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.welcome {
+    color: #555;
+}
+
+.success {
+    color: #00e676;
+}
+
+.error {
+    color: #ff5252;
+}
+
+.footer {
+    height: 43px;
+    background: #111;
+    border-top: 1px solid #252525;
+    color: #666;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+}
+
+@media(max-width:800px) {
+
+    body {
+        overflow: auto;
+    }
+
+    .container {
+        height: auto;
+        min-height: calc(100vh - 64px);
+        grid-template-columns: 1fr;
+    }
+
+    .panel {
+        min-height: 500px;
+    }
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<div class="logo">
+
+<div class="cup">☕</div>
+
+Jhonny <span>Java Compiler</span>
+
+</div>
+
+<div class="status">
+Java 17
+</div>
+
+</header>
+
+<div class="container">
+
+<section class="panel">
+
+<div class="panel-header">
+
+<div class="title">
+
+<div class="java-dot"></div>
+
+Main.java
+
+</div>
+
+<div class="buttons">
+
+<button
+    class="clear"
+    onclick="clearCode()"
+>
+Clear
+</button>
+
+<button
+    class="run"
+    id="runButton"
+    onclick="runCode()"
+>
+▶ Run
+</button>
+
+</div>
+
+</div>
+
+<div class="editor">
+
+<div
+    class="lines"
+    id="lines"
+>
+1
+</div>
+
+<textarea
+    id="code"
+    spellcheck="false"
+    oninput="updateLines()"
+    onscroll="syncScroll()"
+>public class Main {
+
+    public static void main(String[] args) {
+
+        System.out.println("Hello, World!");
+
+    }
+
+}</textarea>
+
+</div>
+
+</section>
+
+<section class="panel">
+
+<div class="panel-header">
+
+<div class="title">
+▣ Console Output
+</div>
+
+</div>
+
+<div class="output">
+
+<div
+    class="console"
+    id="output"
+>
+<span class="welcome">
+Click "Run" to compile and execute your Java code.
+</span>
+</div>
+
+<div class="footer">
+Jhonny Java Compiler • Spring Boot
+</div>
+
+</div>
+
+</section>
+
+</div>
+
+<script>
+
+const code =
+    document.getElementById("code");
+
+const lines =
+    document.getElementById("lines");
+
+const output =
+    document.getElementById("output");
+
+const runButton =
+    document.getElementById("runButton");
+
+function updateLines() {
+
+    const count =
+        code.value.split("\n").length;
+
+    let html = "";
+
+    for (let i = 1; i <= count; i++) {
+        html += i + "<br>";
+    }
+
+    lines.innerHTML = html;
+}
+
+function syncScroll() {
+    lines.scrollTop = code.scrollTop;
+}
+
+function clearCode() {
+
+    code.value = "";
+
+    updateLines();
+
+    output.innerHTML =
+        '<span class="welcome">' +
+        'Enter Java code and click Run.' +
+        '</span>';
+
+    code.focus();
+}
+
+function escapeHtml(text) {
+
+    return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+async function runCode() {
+
+    const javaCode =
+        code.value.trim();
+
+    if (!javaCode) {
+
+        output.innerHTML =
+            '<span class="error">' +
+            'No Java code entered.' +
+            '</span>';
+
+        return;
+    }
+
+    runButton.disabled = true;
+
+    runButton.textContent =
+        "⏳ Running...";
+
+    output.innerHTML =
+        '<span class="welcome">' +
+        'Compiling Java code...' +
+        '</span>';
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/compile",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        code: javaCode
+                    })
+                }
+            );
+
+        const data =
+            await response.json();
+
+        if (data.success) {
+
+            output.innerHTML =
+                '<span class="success">' +
+                '✓ Program finished successfully.' +
+                '</span>\\n\\n' +
+                escapeHtml(
+                    data.output ||
+                    "(No output)"
+                );
+
+        } else {
+
+            output.innerHTML =
+                '<span class="error">' +
+                '✕ Compilation / execution error.' +
+                '</span>\\n\\n' +
+                escapeHtml(
+                    data.output ||
+                    "Unknown error."
+                );
+        }
+
+    } catch (error) {
+
+        output.innerHTML =
+            '<span class="error">' +
+            '✕ Could not connect to Java server.' +
+            '</span>\\n\\n' +
+            escapeHtml(error.message);
+    }
+
+    runButton.disabled = false;
+
+    runButton.textContent =
+        "▶ Run";
+}
+
+code.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (event.key === "Tab") {
+
+            event.preventDefault();
+
+            const start =
+                this.selectionStart;
+
+            const end =
+                this.selectionEnd;
+
+            this.value =
+                this.value.substring(0, start) +
+                "    " +
+                this.value.substring(end);
+
+            this.selectionStart =
+                this.selectionEnd =
+                start + 4;
+
+            updateLines();
+        }
+
+        if (
+            event.ctrlKey &&
+            event.key === "Enter"
+        ) {
+
+            event.preventDefault();
+
+            runCode();
+        }
+    }
+);
+
+updateLines();
+
+</script>
+
+</body>
+
+</html>
